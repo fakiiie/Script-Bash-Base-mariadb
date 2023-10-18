@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Vérifie si MariaDB est installé
+if ! command -v mariadb &> /dev/null; then
+    echo "MariaDB n'est pas installé. Installation en cours..."
+    sudo apt-get update
+    sudo apt-get install mariadb-server
+fi
+
+# Remplacez 'projet' par le nom de votre projet
+projet="nom_du_projet"
+
+# Génère un mot de passe aléatoire de 16 caractères
+mot_de_passe=$(openssl rand -base64 12)
+
+# Crée une nouvelle base de données
+mysql -e "CREATE DATABASE $projet;"
+
+# Crée un nouvel utilisateur avec le mot de passe aléatoire
+mysql -e "CREATE USER '$projet'@'localhost' IDENTIFIED BY '$mot_de_passe';"
+
+# Accorde tous les droits sur la base de données au nouvel utilisateur
+mysql -e "GRANT ALL PRIVILEGES ON $projet.* TO '$projet'@'localhost';"
+
+# Recharge les privilèges pour que les modifications prennent effet
+mysql -e "FLUSH PRIVILEGES;"
+
+# Affiche les informations récapitulatives
+echo "MariaDB a été installé (si nécessaire)."
+echo "Base de données créée : $projet"
+echo "Nouvel utilisateur créé : $projet"
+echo "Mot de passe de l'utilisateur : $mot_de_passe"
